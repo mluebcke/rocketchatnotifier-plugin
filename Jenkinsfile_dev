@@ -36,11 +36,20 @@ node('docker') {
 
     stage('Test') {
       try {
-        sh "mvn -Pdocker clean integration-test"
+        sh "mvn -Pdocker -Djava.awt.headless=true -Dmaven.test.redirectTestOutputToFile=true -Dcobertura.report.format=xml --fail-at-end --batch-mode clean cobertura:cobertura verify"
       } finally {
         sh "./docker-stop.sh"
         junit testResults: 'target/surefire-reports/TEST-*.xml,target/failsafe-reports/TEST-*.xml'
         archiveArtifacts artifacts: 'target/*.hpi'
+        step([$class: 'CoberturaPublisher', autoUpdateHealth: false, autoUpdateStability: false, coberturaReportFile: 'target/site/cobertura/coverage.xml', failUnhealthy: false, failUnstable: false, maxNumberOfBuilds: 0, onlyStable: false, sourceEncoding: 'ASCII', zoomCoverageChart: false])
+        publishHTML(target: [
+          reportDir            : 'target/site/cobertura/',
+          reportFiles          : 'index.html',
+          reportName           : 'Code Coverage Test Report',
+          keepAll              : true,
+          alwaysLinkToLastBuild: true,
+          allowMissing         : false
+        ])
       }
     }
 
