@@ -257,7 +257,7 @@ public class RocketChatNotifier extends Notifier {
     @Override
     public RocketChatNotifier newInstance(StaplerRequest sr, JSONObject json) {
       if (sr != null && json != null) {
-        String rocketServerUrl = sr.getParameter("rocketServer");
+        String rocketServerUrl = sr.getParameter("rocketServerUrl");
         boolean trustSSL = BooleanUtils.toBoolean(sr.getParameter("trustSSL"));
         String username = sr.getParameter("rocketUsername");
         String password = sr.getParameter("rocketPassword");
@@ -283,7 +283,7 @@ public class RocketChatNotifier extends Notifier {
 
     @Override
     public boolean configure(StaplerRequest sr, JSONObject formData) throws FormException {
-      rocketServerUrl = sr.getParameter("rocketServer");
+      rocketServerUrl = sr.getParameter("rocketServerUrl");
       trustSSL = BooleanUtils.toBoolean(sr.getParameter("trustSSL"));
       username = sr.getParameter("rocketUsername");
       password = sr.getParameter("rocketPassword");
