@@ -34,7 +34,7 @@
 
   <name>RocketChat Notifier</name>
   <artifactId>rocketchatnotifier${artifactSuffix}</artifactId>
-  <version>0.5.6-SNAPSHOT</version>
+  <version>0.5.6-cewe</version>
   <packaging>hpi</packaging>
 
   <licenses>
