@@ -26,7 +26,7 @@
     <f:entry title="Login password">
         <f:password field="password" name="rocketPassword" value="${descriptor.getPassword()}" />
     </f:entry>
-    <f:entry title="Channel" >
+    <f:entry title="Channel" description="Comma separated list of rooms (e.g. #project) and / or persons (e.g. @john)">
         <f:textbox field="channel" name="rocketChannel" value="${descriptor.getChannel()}" />
     </f:entry>
     <f:entry title="Build Server URL">

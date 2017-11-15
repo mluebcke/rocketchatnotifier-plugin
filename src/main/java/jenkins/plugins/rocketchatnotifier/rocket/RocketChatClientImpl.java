@@ -113,8 +113,24 @@ public class RocketChatClientImpl implements RocketChatClient {
   @Override
   public void send(final String channelName, final String message, final String emoji, final String avatar, final List<Map<String, Object>> attachments)
     throws ValidatorException, IOException {
+    if (!channelName.contains(",")) {
+      sendSingleMessage(channelName, message, emoji, avatar, attachments);
+      return;
+    }
+
+    for (String singleChanelName : channelName.split(",")) {
+      sendSingleMessage(singleChanelName, message, emoji, avatar, attachments);
+    }
+  }
+
+  private void sendSingleMessage(final String singleChannelName, final String message, final String emoji, final String avatar, final List<Map<String, Object>> attachments) throws IOException {
     Map body = new HashMap<String, String>();
-    body.put("channel", "#" + channelName);
+    String targetChannelName = singleChannelName.trim();
+    if (!targetChannelName.matches("^[@#].+")) {
+      targetChannelName = "#" + targetChannelName;
+    }
+
+    body.put("channel", targetChannelName);
     body.put("text", message);
     if (this.getInfo().getVersion().compareTo("0.50.1") >= 0) {
       if (emoji != null)

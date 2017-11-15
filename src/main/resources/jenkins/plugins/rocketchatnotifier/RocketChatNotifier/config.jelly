@@ -52,7 +52,7 @@
             </select>
         </f:entry>
 
-        <f:entry title="Project Channel" >
+        <f:entry title="Project Channel" description="Comma separated list of rooms (e.g. #project) and / or persons (e.g. @john)">
             <f:textbox name="rocketChannel" value="${instance.getChannel()}"/>
         </f:entry>
         <f:validateButton

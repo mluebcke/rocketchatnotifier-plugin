@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
+import org.mockito.stubbing.Answer;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -15,9 +17,13 @@ import org.powermock.modules.junit4.PowerMockRunner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -116,7 +122,78 @@ public class RocketChatClientImplTest {
     // then error
   }
 
+  @Test
+  public void shouldSendMessageToChannel() throws Exception {
+    // given
+    Set<String> collectedTargetChannels = mockSuccessAndCollectChannels();
+    // when
+    rocketChatClient.send("my-channel", "message");
+    // then
+    assertEquals(collectedTargetChannels.size(), 1);
+    assertTrue(collectedTargetChannels.contains("#my-channel"));
+  }
+
+  @Test
+  public void shouldSendMessageToChannelWithHash() throws Exception {
+    // given
+    Set<String> collectedTargetChannels = mockSuccessAndCollectChannels();
+    // when
+    rocketChatClient.send("#my-channel", "message");
+    // then
+    assertEquals(collectedTargetChannels.size(), 1);
+    assertTrue(collectedTargetChannels.contains("#my-channel"));
+  }
+
+  @Test
+  public void shouldSendMessageToPerson() throws Exception {
+    // given
+    Set<String> collectedTargetChannels = mockSuccessAndCollectChannels();
+    // when
+    rocketChatClient.send("@john", "message");
+    // then
+    assertEquals(collectedTargetChannels.size(), 1);
+    assertTrue(collectedTargetChannels.contains("@john"));
+  }
+
+  @Test
+  public void shouldSendMessageToMultipleRecipients() throws Exception {
+    // given
+    Set<String> collectedTargetChannels = mockSuccessAndCollectChannels();
+    // when
+    rocketChatClient.send("#my-channel, my-channel-no-hash, @john", "message");
+    // then
+    assertEquals(collectedTargetChannels.size(), 3);
+    assertTrue(collectedTargetChannels.contains("#my-channel"));
+    assertTrue(collectedTargetChannels.contains("#my-channel-no-hash"));
+    assertTrue(collectedTargetChannels.contains("@john"));
+  }
+
+
   private Response mockSuccess() throws Exception {
+    final Response response = mockInfoRequest();
+    when(callBuilder.buildCall(any(RocketChatRestApiV1.class), any(RocketChatQueryParams.class), any(Map.class))).thenReturn(response);
+    return response;
+  }
+
+  private Set<String> mockSuccessAndCollectChannels() throws IOException {
+    final Response infoResponse = mockInfoRequest();
+    final Set<String> collectedTargetChannels = new HashSet<>();
+    when(this.callBuilder.buildCall(any(RocketChatRestApiV1.class), any(RocketChatQueryParams.class), any(Map.class)))
+      .then(new Answer<Response>() {
+        @Override
+        public Response answer(InvocationOnMock invocationOnMock) throws Throwable {
+          Map<String, String> body = (Map<String, String>) invocationOnMock.getArguments()[2];
+          if (body != null) {
+            String channelFromBody = body.get("channel");
+            collectedTargetChannels.add(channelFromBody);
+          }
+          return infoResponse;
+        }
+      });
+    return collectedTargetChannels;
+  }
+
+  private Response mockInfoRequest() throws IOException {
     final Response infoResponse = new Response();
     infoResponse.setSuccess(true);
     final Info info = new Info();
@@ -125,8 +202,6 @@ public class RocketChatClientImplTest {
     final Response response = new Response();
     response.setSuccess(true);
     when(callBuilder.buildCall(RocketChatRestApiV1.Info)).thenReturn(infoResponse);
-    when(callBuilder.buildCall(any(RocketChatRestApiV1.class), any(RocketChatQueryParams.class), any(Map.class))).thenReturn(response);
-
     return response;
   }
 
