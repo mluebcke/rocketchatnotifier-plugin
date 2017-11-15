@@ -67,18 +67,13 @@ public class RocketChatClientCallBuilder {
 
   }
 
-  private boolean isSsl() {
-    URI serverUri = URI.create(this.serverUrl);
-    return serverUri.getScheme().equals("https");
-  }
-
   private boolean hasProxyEnvironment() {
     return !this.getProxy().isEmpty();
   }
 
   private String getProxy() {
     Environment env = new Environment();
-    return this.isSsl() ? env.getHttpsProxy() : env.getHttpProxy();
+    return env.getProxy(this.serverUrl);
   }
 
   protected Response buildCall(RocketChatRestApiV1 call) throws IOException {
