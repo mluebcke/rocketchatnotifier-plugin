@@ -305,7 +305,7 @@ public class RocketChatNotifier extends Notifier {
       return "RocketChat Notifications";
     }
 
-    public FormValidation doTestConnection(@QueryParameter("rocketServerUrl") final String rocketServerURL,
+    public FormValidation doTestConnection(@QueryParameter("rocketServerUrl") final String rocketServerUrl,
                                            @QueryParameter("trustSSL") final String trustSSL,
                                            @QueryParameter("rocketUsername") final String username,
                                            @QueryParameter("rocketPassword") final String password,
